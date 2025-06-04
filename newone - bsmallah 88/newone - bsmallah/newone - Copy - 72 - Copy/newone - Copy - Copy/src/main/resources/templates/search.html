@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Bugs</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/custom.css}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#" th:href="@{/dashboard}">Bug Tracker</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-link nav-link">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Search Results</h5>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/bugs/search}" method="get" class="d-flex mb-3">
+                    <input type="text" name="query" class="form-control me-2"
+                           th:value="${searchQuery}" placeholder="Search bugs...">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+
+                <!-- No Results Message -->
+                <div th:if="${#lists.isEmpty(bugs)}" class="text-center text-muted">
+                    <p>No bugs found matching your search criteria.</p>
+                </div>
+
+                <!-- Search Results -->
+                <div th:if="${not #lists.isEmpty(bugs)}">
+                    <div th:each="bug : ${bugs}" class="card mb-3 task-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0" th:text="${bug.title}"
+                                    th:class="${bug.resolved ? 'text-decoration-line-through' : ''}">
+                                    Bug Title
+                                </h6>
+                                <div class="d-flex align-items-center">
+                                    <span th:class="'badge me-2 ' + 
+                                        ${bug.priority == T(com.example.signupauth.model.Bug.Priority).CRITICAL ? 'bg-danger' : 
+                                         bug.priority == T(com.example.signupauth.model.Bug.Priority).HIGH ? 'bg-warning' : 'bg-info'}"
+                                          th:text="${bug.priority}">Priority</span>
+                                    <a th:href="@{/bugs/{id}/edit(id=${bug.id})}" class="btn btn-sm btn-primary me-2">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form th:action="@{/bugs/{id}/delete(id=${bug.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this bug?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <p class="card-text mt-2" th:text="${bug.description}">Description</p>
+                            <small class="text-muted">
+                                Reported: <span th:text="${#temporals.format(bug.reportedDate, 'yyyy-MM-dd HH:mm')}">2024-01-01</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
